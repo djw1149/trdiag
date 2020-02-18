@@ -1,0 +1,46 @@
+David Waitzman						Sat Nov 21 1987
+
+		Proposed Token Ring Diagnosis Features
+
+The TI Token ring chip set has a group of error counters.  These
+count the following errors:
+	line,
+	burst,
+	ari/fci,
+	lost frame,
+	receive congestion,
+	frame copied,
+	token [only when adapter is the Active Monitor],
+	dma bus, and
+	dma parity.
+
+Each counter is eight bits wide.  When a counter overflows, a RING STATUS
+interrupt occurs with the COUNTER_OVERFLOW bit set in the status
+description.  The counter that overflowed is pegged at 255.  The counters
+can be read with the READ_ERROR_LOG command.  This command returns the
+values of all of the counters, and then zeros all of the counters.
+
+I propose to make all of the counters available via rdiag.  Because the
+adapter counters are only eight bits wide, a long integer counter, updated by
+the router, will sum the total errors for each adapter counter.  The long
+integer counters will be updated upon the following two conditions:
+	- a RING_STATUS interrupt due to a COUNTER_OVERFLOW occurs, or
+	- a rdiag request for the counter values is received by the router.
+
+Because of the possible delay from when a counter overflows, pegs at 255,
+and causes an interrupt, and when the interrupt is serviced, some errors may
+be lost.  I will attempt to find a typical number of errors lost in this
+case by performance testing.  
+
+Long integer counters will also be kept on the number of pegs that occur for
+each adapter counter.  This will provide a way to estimate the real number
+of errors that occurred.
+
+---
+
+I will make enhancements to rdiag to support the following:
+	- ability to specify diagnosis of a token ring card in a router,
+	- output formatting capability appropriate to machine reading, and
+	- a simple XForm forms based interface (invoked as a separate
+	  program).
+

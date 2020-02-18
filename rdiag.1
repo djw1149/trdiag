@@ -1,0 +1,89 @@
+.TH RDIAG 1 4/2/86
+.CM 1
+.SH "NAME"
+.I rdiag
+\- A router diagnosis program
+.SH "SYNOPSIS"
+rdiag <router> <card/device> <type> [-<options>]
+.SH "DESCRIPTION"
+rdiag diagnoses the given card on the given router with a diagnosis of the 
+given type.
+.sp
+<router> where router is of the form 128.2.251.231 or router7.ece.cmu.edu
+.sp
+<card/device> where card is typically 1-4, or a device name like 'il'
+.sp
+<type> where type is dependent on the kind of card/device.  If the card is an
+Interlan 10mb ethernet, type can be dump, stats, tdr, or selfdiag.  Type can
+also be specified as a number, at some loss of error checking ability.
+.sp
+<options> are:
+.sp
+	v ->  be verbose
+.sp
+	p ->  force asking for a password
+.sp
+	t ->  be terse (default)
+.sp
+	m ->  be machine readable (very terse)
+.sp
+	i ->  do an infinite number of diagnoses
+.sp
+Certain diagnoses require a password.  If <type> is a number then the program
+won't be able to tell if the diagnosis needs a password so you should specify
+the -p option.
+
+Currently implemented diagnostics are:
+.sp
+-il (Interlan 10MB ethernet)
+.sp
+--dump, DUMP (#1)	dump internal chip information
+.sp
+--stats, regs, STATS (#2)	display error counters
+.sp
+--tdr, TDR (#3)	do time domain reflectometry
+.sp
+--diag, DIAG (#4)	so a self test diagnosis
+.sp
+-tr (IBM Token Ring)
+.sp
+--errs, ERRS (#??)	do a token ring error log read
+.sp
+.SH "SEE ALSO"
+rinfo.1
+.SH "EXAMPLES"
+.I rdiag 128.2.251.1 1 1 -v
+.sp
+ returns
+.sp
+.li
+router7.ece.cmu.edu:: Card: 2, Diagnosis: stats, Device type: 10MB Interlan
+Errors: cyclic redundancy check 0, alignment 1, resource 2, overrun 0
+.sp
+.li
+meaning:
+.sp
+	cyclic redundancy check errors: 0
+.sp
+	alignment errors: 1
+.sp
+	no resources errors: 2
+.sp
+	dma overrun errors: 0
+.sp
+.I rdiag router1.ece.cmu.edu il dump -v
+
+This will ask for a password, then do a dump diagnosis on all the interlan 10MB
+boards in the given router.
+
+.SH "DIAGNOSTICS"
+Lots of parameter checks are done.  Error messages should be self
+explanatory.
+
+.SH "HISTORY"
+.TP
+02-Apr-86  djw at Carnegie-Mellon University
+Added rest of diagnosis functions, and implemented password protection.
+.TP
+16-Feb-86  djw at Carnegie-Mellon University
+Created.

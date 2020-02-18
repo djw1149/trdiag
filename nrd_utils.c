@@ -1,0 +1,263 @@
+/*
+ * $Header: nrd_utils.c,v 1.2 87/12/03 15:20:02 djw Locked $
+ *
+ * file: rd_utils.c
+ *
+ * synopsis: router diagnosis utility module
+ *
+ * modification history:
+ *
+ *   Jun-86 modified by Chriss Stephens (chriss) at Carnegie Mellon University
+ *	to use common rdiagfo header. This version compatible with ver 1 of
+ *	router side software. Additionally, now compatible with customized
+ *	perror and standardized error handling.
+ *
+ * david waitzman (djw@ampere.ece.cmu.edu) march '86
+ *	created from rcp code by Matt Mathis, Kevin Krimse and Mike Acceta
+ *
+ */
+
+#include <stdio.h>
+#include <strings.h>
+#include <sys/types.h>
+#include "./h/rtypes.h"
+#include <netinet/in.h>
+
+#include "../h/queue.h"
+#include "./h/mch.h"		/* define byte order for target machine */
+#include "../h/ip.h"
+#include "../h/rcp.h"
+#include "../h/errorlog.h"
+#include "./h/rcpinfo.h"
+#include "./h/perror.h"			/* define error constants */
+#include "./h/rdiag.h"
+
+struct rd_devtypesT rd_devtypes[MAXDEVTYPES] = {
+    {"il",  DVT_IL10, {{"dump", ILDIAG_DUMP, AY}, {"stats", ILDIAG_STATS, AN},
+    		       {"tdr",  ILDIAG_TDR, AY},  {"diag",  ILDIAG_DIAG, AN},
+		       {"DUMP", ILDIAG_DUMP, AY}, {"STATS", ILDIAG_STATS, AN},
+		       {"TDR",  ILDIAG_TDR, AY},  {"DIAG", ILDIAG_DIAG, AN},
+		       {"regs", ILDIAG_STATS, AN}}},
+    {"tr", DVT_TR,    {{"errs", TRDIAG_ERRS, AN}, {"ERRS", TRDIAG_ERRS, AN}}},
+    {NULL, NULL, NULL}		/* end case */
+};
+
+#define MBUFSIZ 1500
+static char main_xbuff[MBUFSIZ];
+static char main_rbuff[MBUFSIZ];
+extern int errno;
+extern char *strcpy();
+
+#define RCP_SERV_PORT 0xff
+#define RETRIES 10			/* Ten attempts if needed */
+
+
+/* rcp_diag
+ * This function retrieves an information (statistics) structure from given
+ * socket and returns a pointer to the returned information. The information
+ * is in a static area and must be copied between calls to this if the 
+ * information is to be preserved.  if pswd is non-null, the diagnosis
+ * is authorized using pswd as the password.
+ *
+ * This version is compatible with the diagfo rcp header and places all
+ * diagnosis request information in this header with the exception of the 
+ * dev_type. This parameter is placed at the head of the packet data area
+ * where it is overwritten by the returning data.
+ *
+ */
+
+struct rcp_diagfo *rdiag(sin, device, diagtype, devtype, pswd)
+struct sockaddr_in *sin;	/* Socket to the router */
+int  device;			/* which router interface */
+int  diagtype;			/* diagnosis type */
+int  devtype;			/* device type */
+char *pswd;			/* the diagnosis needs authorization*/
+{
+    struct rcp        *rcp_out = (struct rcp *) &(main_xbuff[0]);
+    struct rcp        *rcp_in  = (struct rcp *) &(main_rbuff[0]);
+    struct rcp_diagfo *rd      = (struct rcp_diagfo *)
+    					&(rcp_out->rc_diagfo);
+    u_short           *rc_devtype = (u_short *)rd->data;
+
+    rcp_out->rc_type	= htons(V1_RCT_DIAG);
+    if (pswd)
+       rcp_out->rc_id   = htons(auth_diag(sin, pswd));
+    rd->subtype 	= htons((u_short)diagtype);
+    rd->u_di.card	= htons((u_short)device);
+    *rc_devtype		= htons((u_short)devtype);
+    rd->length		= htons(sizeof(u_short));
+
+    if (rcptrans(sin, rcp_out, rcp_in, RETRIES, 
+		 sizeof(struct rcp)+sizeof(u_short), MBUFSIZ) == ERROR_EXIT)
+	return(NULL);
+
+    return((struct rcp_diagfo *)&(rcp_in->rc_diagfo));
+}
+
+
+/*
+ * takes a device type name as input.  devtype is a pointer
+ * to the device type.  If it is found, then the device number (not the card
+ * number, instead, something like DVT_???), is returned.  If the device name
+ * isn't found 0 is returned as an error condition.
+ */
+int devname_to_devtype(input)
+char *input;
+{
+    struct rd_devtypesT *rddv;
+    for (rddv = rd_devtypes; rddv->devtype; rddv++)
+      if (!strcmp(rddv->devname,input))
+	return rddv->devtype;
+    return 0;
+}
+
+/*
+ * takes a diagnosis name and returns the number of the diagnosis
+ * if *devtype is set on entry (!= -1) then only checks for that devtype.
+ * *devtype is set to the device type indicated by the diagnosis name (if
+ * *devtype was not set on entry)
+ * the first matching diagname found is used.
+ * *needsauth is set to AY if the diagnosis requires authorization, else
+ * it is set to AN.
+ */
+int diagname_to_diagtype(input, devtype, needsauth)
+char *input;				/* the diagnosis name */
+int *devtype;				/* the device type */
+short *needsauth;			/* the diagnosis needs authorization*/
+{
+    struct rd_devtypesT *rddv;
+    struct rd_diagtypesT *rddt;
+    int temp;
+
+    *needsauth = AN;	/* the default case */
+    /*
+     * try the simple case first- see if input is a (ascii rep of a) number.
+     * if so, return the binary number.  This works because negative
+     * diagnosis #'s aren't allowed (the fail code from atoi is negative).
+     * This also restricts against a device number 0- which is ok, since the
+     * current routers don't have a device of that number.
+     */
+    if ((temp = atoi(input)) > 0)  
+	return temp;
+
+    for (rddv = rd_devtypes; rddv->devtype; rddv++) {
+	if ((*devtype != -1) && (*devtype != rddv->devtype))
+	    continue;			/* device types do not match */
+        for (rddt = rddv->diagtypes; rddt->diagnum; rddt++)
+	    if (!strcmp(rddt->diagname,input)) {
+/*  printf("devname %s, rddt %x, diag %s, num %d\n", rddv->devname, rddt,
+	rddt->diagname, rddt->diagnum); */
+	        *devtype = rddv->devtype;
+	        *needsauth = rddt->needsauth;
+	        return rddt->diagnum;
+	    }
+    }
+    return 0;
+}
+
+/*
+ printf("devname %s, rddt %x, diag %s, num %d\n", rddv->devname, rddt,
+	rddt->diagname, rddt->diagnum);
+*/
+
+/*
+ * takes a diagnosis number and returns the name of the diagnosis.
+ * if 'devtype' is non zero, it must point to a device name, and this looks
+ * up and returns what 'input' means to that device, else the first device
+ * who has a matching diagnosis type is used.
+ * if no device uses that number, or the given device don't use that number,
+ * the string "#<the number>" is returned.
+ * the string returned is in a static area-> don't deallocate it.
+ */
+char *diagnum_to_name(input, devtype)
+int input;
+int devtype;
+{
+    static char ntemp[5];	/* for return value */
+    struct rd_devtypesT *rddv;
+    struct rd_diagtypesT *rddt;
+
+    for (rddv = rd_devtypes; rddv->devtype; rddv++)
+      if (!devtype || (rddv->devtype == devtype))
+        for (rddt = rddv->diagtypes; rddt->diagnum; rddt++)
+	  if (rddt->diagnum == input)
+	    return(rddt->diagname);
+
+    sprintf(ntemp, "#%d", input);
+    return(ntemp);	   
+}
+
+
+/*
+ * takes a device type name as input.  devtype is a pointer
+ * to the device type.  If it is found, then the device number (not the card
+ * number, instead, something like DVT_???), is returned.  If the device name
+ * isn't found 0 is returned as an error condition.
+ */
+int simple_devname_to_num(input)
+char *input;
+{
+    struct rd_devtypesT *rddv;
+    for (rddv = rd_devtypes; rddv->devtype; rddv++)
+      if (!strcmp(rddv->devname,input))
+	return rddv->devtype;
+    return 0;
+}
+
+
+/*
+ * does a net to host short conversion over the words in the given data block
+ */
+bntohs(data, len)
+register u_short *data;
+register int len;
+{
+    while(len--) {
+	*data = ntohs(*data);
+	*data++;
+    }
+}
+
+/*
+ * authorize the diagnosis.  exit if we can't authorize it.
+ */
+int auth_diag(sin, pswd)
+struct sockaddr_in *sin;		/* Socket to the router */
+char *pswd;				/* the diagnosis needs authorization */
+{
+    u_short     id = rand_id();
+
+    if (rcpauth (sin, pswd, id++) == ERROR_EXIT)
+	print_error("rd_utils",FATAL);
+    return(id);
+}
+
+/*
+ * Generic diagnosis output routine - prints all of the data
+ * as single hex bytes with no data byte swapping.
+ * The same format is used for verbose, terse and machine readable output 
+ */
+generic_diag_output(diag)
+struct rcp_diagfo *diag;
+{
+#define COL 0x10		/* number of columns to show */
+    int i, j;
+
+    diag->length = ntohs(diag->length);
+    printf("Devicetype: %d, Diagtype: %d\n",
+    	ntohs(*(u_short*)diag->data), ntohs(diag->subtype));
+    /* print heading */
+    printf("    ");
+    for(j = 0; j < COL; j++)
+    	printf("%2x ", j);
+    putchar('\n');
+
+    /* print data */
+    for(i = 0; i < diag->length; i+= COL) {
+	printf("%2x: ", i);
+	for(j = i; (j < diag->length) && (j < i + COL); j++)
+	    printf("%2x ", (u_char)diag->data[j]);
+	putchar('\n');
+    }
+    putchar('\n');
+}

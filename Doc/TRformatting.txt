@@ -1,0 +1,29 @@
+Tue Nov 17 1987 david waitzman (djw) at cmu
+
+README-->
+This is a formatting concept for rdiag that was never used.
+Do you want to implement it?
+
+Rdiag output value reporting:
+
+use a format string.
+format types are:
+
+	tn	time in numeric format
+	th	time in human readable format
+	b	brand of device (e.g. il)
+	c	card number
+	d	diagnosis type x...x (e.g. stats)
+	rxx	register number (e.g. r1)
+	V[t,b,c,d,r] be verbose reporting appropriate format (default?)
+	T[t,b,c,d,r] be terse reporting appropriate format
+
+examples: 
+format "Tth Tb Tc Td Tr1" 
+outputs "11/3/87 11:23 il 1 stats 123"
+
+format "Vth Vb Vc Vd Vr1" 
+outputs "Date:11/3/87 11:23 Brand:il Card:1 Diag:stats CrcErrors:123"
+
+format "Ttn Tr1"
+outputs "1231231 123"

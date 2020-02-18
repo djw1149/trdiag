@@ -1,0 +1,1987 @@
+%!PS-Adobe-1.0
+%%Title: tr-diag.mss
+%%DocumentFonts: (atend)
+%%Creator: David Waitzman and Scribe 5(1501)
+%%CreationDate: 11 December 1987 11:38
+%%Pages: (atend)
+%%EndComments
+% PostScript Prelude for Scribe.
+/BS {/SV save def 0.0 792.0 translate .01 -.01 scale} bind def
+/ES {showpage SV restore} bind def
+/SC {setrgbcolor} bind def
+/FMTX matrix def
+/RDF {WFT SLT 0.0 eq
+  {SSZ 0.0 0.0 SSZ neg 0.0 0.0 FMTX astore}
+  {SSZ 0.0 SLT sin SLT cos div SSZ mul SSZ neg 0.0 0.0 FMTX astore}
+  ifelse makefont setfont} bind def
+/SLT 0.0 def
+/SI { /SLT exch cvr def RDF} bind def
+/WFT /Courier findfont def
+/SF { /WFT exch findfont def RDF} bind def
+/SSZ 1000.0 def
+/SS { /SSZ exch 100.0 mul def RDF} bind def
+/AF { /WFT exch findfont def /SSZ exch 100.0 mul def RDF} bind def
+/MT /moveto load def
+/XM {currentpoint exch pop moveto} bind def
+/UL {gsave newpath moveto dup 2.0 div 0.0 exch rmoveto
+   setlinewidth 0.0 rlineto stroke grestore} bind def
+/LH {gsave newpath moveto setlinewidth
+   0.0 rlineto
+   gsave stroke grestore} bind def
+/LV {gsave newpath moveto setlinewidth
+   0.0 exch rlineto
+   gsave stroke grestore} bind def
+/BX {gsave newpath moveto setlinewidth
+   exch
+   dup 0.0 rlineto
+   exch 0.0 exch neg rlineto
+   neg 0.0 rlineto
+   closepath
+   gsave stroke grestore} bind def
+/BX1 {grestore} bind def
+/BX2 {setlinewidth 1 setgray stroke grestore} bind def
+/PB {/PV save def translate 100.0 -100.0 scale pop} bind def
+/PE {PV restore} bind def
+/SH /show load def
+/MX {exch show 0.0 rmoveto} bind def
+/W {0 32 4 -1 roll widthshow} bind def
+/WX {0 32 5 -1 roll widthshow 0.0 rmoveto} bind def
+%%EndProlog
+%%Page: 0 1 
+BS
+0 SI
+15 /Times-Bold AF
+18601 13965 MT
+(An Undergraduate Project Report on)SH
+21119 15749 MT
+(Token Ring Router Diagnosis)SH
+10 /Times-Roman AF
+27198 20446 MT
+(David Waitzman)SH
+20449 21823 MT
+(Department of Electrical & Computer Engineering)SH
+24989 23200 MT
+(Carnegie Mellon University)SH
+30017 25954 MT
+(for)SH
+26072 28708 MT
+(Professor Roy Maxion)SH
+23893 30085 MT
+(Department of Computer Science)SH
+24989 31462 MT
+(Carnegie Mellon University)SH
+26795 34216 MT
+(11 December 1987)SH
+25197 36970 MT
+(18-615 Section S, 12 Units)SH
+15 /Times-Bold AF
+27808 39885 MT
+(Abstract)SH
+10 /Times-Roman AF
+8200 42091 MT
+(This paper describes the features)
+52 W( added to the CMU router to support the diagnosis of the IBM Token Ring, and)51 W
+7200 43468 MT
+(the additional features added to the)SH
+/Times-Italic SF
+21475 XM
+(rdiag)SH
+/Times-Roman SF
+23892 XM
+(program, used to request diagnosis of a router device.)SH
+ES
+%%Page: 1 2 
+BS
+0 SI
+10 /Times-Roman AF
+30350 4286 MT
+(1)SH
+13 /Times-Bold AF
+7200 8071 MT
+(1. Introduction)SH
+10 /Times-Roman AF
+8200 9448 MT
+(The IBM Token ring is)
+77 W( a 4 megabit per second ring network \050physically a star topology\051.  The protocol used is)78 W
+/Times-Italic SF
+7200 10825 MT
+(ANSI 802.5)102 W
+/Times-Roman SF
+(m also referred to as)102 W
+/Times-Italic SF
+20837 XM
+(ISP/DP 8802/5)102 W
+/Times-Roman SF
+(. Texas)
+452 W( Instruments manufacturers a chip set the implements the)101 W
+7200 12202 MT
+(protocol, which is sold by IBM in a Token Ring Adapter Card, for use in the PC/AT.)SH
+8200 14681 MT
+(The CMU router, an IP router, is widely used on the Carnegie Mellon campus for interconnecting the various)121 W
+8 SS 
+47962 15713 MT
+(1)SH
+10 SS 
+7200 16058 MT
+(network cables.  The router code runs on a few computers: 68000 Multibus, IBM PC/AT,)
+103 W( PDP-11)102 W
+48362 XM
+(, and the Vax)102 W
+8 SS 
+8700 17090 MT
+(2)SH
+10 SS 
+7200 17435 MT
+(750)SH
+9100 XM
+(. The)
+574 W( router supports a wide variety of)
+162 W( network devices, including: Interlan 10MB ethernet, 3Com 10MB)163 W
+7200 18812 MT
+(ethernet, 3MB)
+125 W( ethernet, DEC DEUNA 10MB ethernet, AppleTalk, proNET 10MB ring, Chicken Hawk ethernet,)124 W
+7200 20189 MT
+(and the IBM Token Ring.  The devices are primarily interrupt driven, though polling is done for certain functions.)SH
+8200 22668 MT
+(As part of an earlier project, I added support to the router to diagnose)
+79 W( the Interlan 10MB ethernet device.  This)80 W
+7200 24045 MT
+(was implemented by extending the router control protocol \050)33 W
+/Times-Italic SF
+(rcp)SH
+/Times-Roman SF
+(\051 router information \050)33 W
+/Times-Italic SF
+(rinfo)SH
+/Times-Roman SF
+(\051 module to)
+33 W( also serve as a)32 W
+7200 25422 MT
+(router diagnosis \050)68 W
+/Times-Italic SF
+(rdiag)SH
+/Times-Roman SF
+(\051 module.  A program, called)68 W
+/Times-Italic SF
+28741 XM
+(rdiag)SH
+/Times-Roman SF
+(, was created to provide a user interface to the)
+68 W( diagnosis)69 W
+7200 26799 MT
+(functions. This)
+250 W( program runs on 4.2bsd and 4.3bsd Unix hosts.)SH
+8200 29278 MT
+(For this project I)
+55 W( have added functionality to the router to support a subset of the diagnostics provided by the TI)54 W
+7200 30655 MT
+(Token Ring chip set.  The)SH
+/Times-Italic SF
+17838 XM
+(rdiag)SH
+/Times-Roman SF
+20255 XM
+(program was also extended to provide machine readable output.)SH
+10800 50 7200 68504 UL
+6 SS 
+8000 69843 MT
+(1)SH
+8 SS 
+8300 70152 MT
+(not actively maintained)SH
+6 SS 
+8000 71691 MT
+(2)SH
+8 SS 
+8300 72000 MT
+(currently being developed)SH
+10 SS 
+7200 75600 MT
+(Token Ring Diagnosis)SH
+26795 XM
+(11 December 1987)SH
+47196 XM
+(David Waitzman)SH
+ES
+%%Page: 2 3 
+BS
+0 SI
+10 /Times-Roman AF
+30350 4286 MT
+(2)SH
+13 /Times-Bold AF
+7200 8071 MT
+(2. Diagnosis Functions)SH
+10 /Times-Roman AF
+8200 9448 MT
+(The TI Token Ring chip set provides a)
+52 W( number of diagnosis functions.  Some are specified in the 802.5 protocol)53 W
+7200 10825 MT
+(specification, others are unique to the TI chip set.  The TMS380 Adapter Chipset User's)
+229 W( Guide, revision D,)228 W
+3556 50 31798 11025 UL
+3221 50 35833 11025 UL
+3056 50 39533 11025 UL
+2610 50 43068 11025 UL
+2444 50 46156 11025 UL
+7200 12202 MT
+(produced by Texas Instruments, provides)
+93 W( information on the chip set.  Section 3.4 provides information on frame)94 W
+7200 13579 MT
+(formats in the Token Ring.)SH
+8200 16058 MT
+(The diagnosis function)
+1 W( provided by the router, for the Token Ring Adapter Card, is to return the error log counters)SH
+7200 17435 MT
+(maintained by the device.)
+32 W( These)
+315 W( counters are described in section 3.11 \050)33 W
+/Times-Bold SF
+(Soft Error Counting and Reporting)33 W
+/Times-Roman SF
+(\051 and)33 W
+7200 18812 MT
+(summarized on page 4-133 of the Chipset User's Guide.  There are counters for the following errors:  \051)SH
+9 /Times-Bold AF
+7200 20443 MT
+(line)SH
+/Times-Roman SF
+10800 XM
+(The line error counter is incremented once per frame whenever:  1\051 a frame is repeated or copied, or 2\051 the)
+131 W( Error)130 W
+1400 50 7200 20643 UL
+7 SS 
+19800 21130 MT
+(3)SH
+9 SS 
+10800 21457 MT
+(Detected Indicator \050EDI\051)SH
+20600 XM
+(is zero in the incoming frame, or 3\051 one of the following conditions exist:)SH
+/Symbol SF
+12411 22784 MT
+(\267)SH
+/Times-Roman SF
+13050 XM
+(A code violation exists between the starting delimiter \050SDEL\051 and Ending Delimiter \050EDEL\051 of the frame.)SH
+/Symbol SF
+12411 24405 MT
+(\267)SH
+/Times-Roman SF
+13050 XM
+(A code violation exists in a token.)SH
+/Symbol SF
+12411 26026 MT
+(\267)SH
+/Times-Roman SF
+13050 XM
+(A Frame Check Sequence \050FCS\051 error exists.)SH
+/Times-Bold SF
+7200 27484 MT
+(burst)SH
+/Times-Roman SF
+10800 XM
+(The burst error counter is incremented when the adapter detects the absence of transitions for five half-bit times)175 W
+2050 50 7200 27684 UL
+10800 28498 MT
+(between SDEL and EDEL.  Only one Adapter detects the burst five condition,)
+28 W( because the Adapter that detects a burst)27 W
+10800 29512 MT
+(four condition \050four half-bit times without transitions\051 conditions its transmitter to transmit idles if the burst five)175 W
+10800 30526 MT
+(condition is detected.)SH
+/Times-Bold SF
+7200 31984 MT
+(ari/fci set)SH
+/Times-Roman SF
+10800 XM
+(The ARI \050Address Recognized\051/FCI \050Frame Copied\051 set error counter is incremented)
+116 W( when more than one AMP or)115 W
+3575 50 7200 32184 UL
+10800 32998 MT
+(SMP MAC frame is received with)
+114 W( ARI/FCI equal to zero without first receiving an intervening AMP MAC frame.)115 W
+10800 34012 MT
+(This counter indicates that the upstream Adapter is unable to set its ARI/FCI bits in a frame that it has copied.)SH
+/Times-Bold SF
+7200 35470 MT
+(lost frame)SH
+3875 50 7200 35670 UL
+/Times-Roman SF
+10800 36484 MT
+(The lost frame error counter is incremented when an Adapter is in transmit \050stripping\051 mode and fails to receive the end)5 W
+10800 37498 MT
+(of the frame it transmitted.)SH
+/Times-Bold SF
+7200 38956 MT
+(receive congestion)SH
+6975 50 7200 39156 UL
+/Times-Roman SF
+10800 39970 MT
+(The receive congestion error counter is incremented when an Adapter in the repeat mode recognizes a frame)
+22 W( addressed)23 W
+10800 40984 MT
+(to its specific address, but has no buffer space available to copy the frame.)SH
+/Times-Bold SF
+7200 42442 MT
+(frame copied)SH
+5025 50 7200 42642 UL
+/Times-Roman SF
+10800 43456 MT
+(The frame copied error counter is incremented when an Adapter in the receive/repeat)
+206 W( mode recognizes a frame)207 W
+10800 44470 MT
+(addressed to its specific address, but finds the ARI bits not equal to 00 \050possible line hit or duplicated address\051.)SH
+/Times-Bold SF
+7200 45928 MT
+(token)SH
+/Times-Roman SF
+10800 XM
+(The token error counter is only contained \050incremented\051 in an Active Monitor)
+18 W( Adapter configuration.  It is incremented)17 W
+2150 50 7200 46128 UL
+10800 46942 MT
+(when the Active monitor function detects an error with the token protocol as follows:)SH
+/Symbol SF
+12411 48269 MT
+(\267)SH
+/Times-Roman SF
+13050 XM
+(A token with a priority of non-zero and the MONITOR COUNT bit equals one.)SH
+/Symbol SF
+12411 49890 MT
+(\267)SH
+/Times-Roman SF
+13050 XM
+(A frame and the MONITOR COUNT equals one.)SH
+/Symbol SF
+12411 51511 MT
+(\267)SH
+/Times-Roman SF
+13050 XM
+(No token or frame is received within a 10 millisecond window.)SH
+/Symbol SF
+12411 53132 MT
+(\267)SH
+/Times-Roman SF
+13050 XM
+(The starting delimiter/token)
+121 W( sequence has a code violation \050in an area where a code violation must not)122 W
+13050 54146 MT
+(exist\051.)SH
+/Times-Bold SF
+7200 55604 MT
+(dma bus)SH
+/Times-Roman SF
+10800 XM
+(The DMA bus error counter counts the)
+102 W( occurances of DMA bus errors which do not exceed the abort thresholds as)101 W
+3275 50 7200 55804 UL
+10800 56618 MT
+(specified in the Adapter initialization parameters.)SH
+/Times-Bold SF
+7200 58076 MT
+(dma parity)SH
+4275 50 7200 58276 UL
+/Times-Roman SF
+10800 59090 MT
+(The DMA Parity error counter)
+10 W( counts the occurances of DMA parity errors which do not exceed the abort thresholds as)9 W
+10800 60104 MT
+(specified in the Adapter initialization parameters.)SH
+10 SS 
+8200 61481 MT
+(Five reserved counters are also allocated, to bring the total number of counters to fourteen.)SH
+8200 63960 MT
+(Each counter is eight bits wide.  When a counter overflows \050when its value)
+32 W( reaches 255\051, a)33 W
+/Times-Bold SF
+45267 XM
+(Ring Status)33 W
+/Times-Roman SF
+50556 XM
+(interrupt)SH
+7200 65337 MT
+(occurs with the)59 W
+/Times-Bold SF
+13737 XM
+(Counter Overflow)59 W
+/Times-Roman SF
+21909 XM
+(bit set in the status description.)
+59 W( The)
+366 W( counter that overflowed is pegged at 255.)58 W
+7200 66714 MT
+(The counters can)
+152 W( be read with the)153 W
+/Times-Bold SF
+22015 XM
+(Read Error Log)153 W
+/Times-Roman SF
+29612 XM
+(command. This)
+556 W( command returns the values of all of the)153 W
+7200 68091 MT
+(counters, and then zeros all of the counters.)SH
+10800 50 7200 70461 UL
+5 SS 
+7900 71709 MT
+(3)SH
+7 SS 
+8150 72000 MT
+(The EDI is set by a repeating adapter if it detects a CRC error or a code violation.)SH
+10 SS 
+7200 75600 MT
+(Token Ring Diagnosis)SH
+26795 XM
+(11 December 1987)SH
+47196 XM
+(David Waitzman)SH
+ES
+%%Page: 3 4 
+BS
+0 SI
+10 /Times-Roman AF
+30350 4286 MT
+(3)SH
+8200 7886 MT
+(The following lists the order the counters are read out of the device with the)SH
+/Times-Bold SF
+38833 XM
+(Read Error Log)SH
+/Times-Roman SF
+45971 XM
+(command:)SH
+13 /Times-Bold AF
+23071 11245 MT
+(Table 1: Counter Ordering)SH
+10 SS 
+22507 14001 MT
+(Counter Number)SH
+32346 XM
+(Counter Name)SH
+18623 50 21288 14610 LH BX1
+-1678 50 31086 14610 LV BX1
+/Times-Roman SF
+25937 15695 MT
+(0)SH
+31485 XM
+(Line)SH
+18623 50 21288 16313 LH BX1
+25937 17398 MT
+(1)SH
+31485 XM
+(Reserved)SH
+18623 50 21288 18016 LH BX1
+25937 19101 MT
+(2)SH
+31485 XM
+(Burst)SH
+18623 50 21288 19719 LH BX1
+25937 20804 MT
+(3)SH
+31485 XM
+(ARI/FCI)SH
+18623 50 21288 21422 LH BX1
+25937 22507 MT
+(4)SH
+31485 XM
+(Reserved)SH
+18623 50 21288 23125 LH BX1
+25937 24210 MT
+(5)SH
+31485 XM
+(Reserved)SH
+18623 50 21288 24828 LH BX1
+25937 25913 MT
+(6)SH
+31485 XM
+(LostFrame)SH
+18623 50 21288 26531 LH BX1
+25937 27616 MT
+(7)SH
+31485 XM
+(Receive Congestion)SH
+18623 50 21288 28234 LH BX1
+25937 29319 MT
+(8)SH
+31485 XM
+(Frame Copied)SH
+18623 50 21288 29937 LH BX1
+25937 31022 MT
+(9)SH
+31485 XM
+(Reserved)SH
+18623 50 21288 31640 LH BX1
+25687 32725 MT
+(10)SH
+31485 XM
+(Token)SH
+18623 50 21288 33343 LH BX1
+25687 34428 MT
+(11)SH
+31485 XM
+(Reserved)SH
+18623 50 21288 35046 LH BX1
+25687 36131 MT
+(12)SH
+31485 XM
+(DMA Bus)SH
+18623 50 21288 36749 LH BX1
+25687 37834 MT
+(13)SH
+31485 XM
+(DMA Parity)SH
+18623 25520 50 21288 38452 BX BX1
+-23842 50 31086 38452 LV BX1
+8200 40062 MT
+(Because the chip set counters are only eight bits wide, a way was needed to)
+56 W( maintain the total error count.  This)55 W
+7200 41439 MT
+(implementation maintains a long integer \050thirty two bit)
+130 W( wide\051 counter, updated by the router, that sums the total)131 W
+7200 42816 MT
+(errors for each chip set counter.  The long integer counters will be updated upon the following two conditions:)SH
+/Symbol SF
+8990 44269 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(a)SH
+/Times-Bold SF
+10394 XM
+(Ring Status)SH
+/Times-Roman SF
+15617 XM
+(interrupt due to a)SH
+/Times-Bold SF
+22727 XM
+(Counter Overflow)SH
+/Times-Roman SF
+30781 XM
+(occurs, or)SH
+/Symbol SF
+8990 46027 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(a request for the counter values is received by the router due to a user running the)60 W
+/Times-Italic SF
+43573 XM
+(rdiag)SH
+/Times-Roman SF
+46050 XM
+(program on a)59 W
+9700 47132 MT
+(host computer.)SH
+8200 49611 MT
+(Because of the possible delay from when a counter overflows, pegs at 255 and causes an interrupt, and)
+44 W( when the)45 W
+7200 50988 MT
+(interrupt is serviced, some errors counts may be lost in the pegged counter.  I attempted to)
+40 W( find a typical number of)39 W
+7200 52365 MT
+(errors lost in this case by performance testing.)SH
+8200 54844 MT
+(Long integer counters are also kept on the number of)
+1 W( pegs that occur for each adapter counter.  This will provide a)2 W
+7200 56221 MT
+(way to estimate the real number of errors that occurred.)SH
+7200 75600 MT
+(Token Ring Diagnosis)SH
+26795 XM
+(11 December 1987)SH
+47196 XM
+(David Waitzman)SH
+ES
+%%Page: 4 5 
+BS
+0 SI
+10 /Times-Roman AF
+30350 4286 MT
+(4)SH
+13 /Times-Bold AF
+7200 8071 MT
+(3. Implementation)SH
+10 /Times-Roman AF
+8200 9448 MT
+(This chapter describes how the diagnosis function was added to the router driver for the token ring chip set.)SH
+8200 11927 MT
+(The device dependent data fields for the token)
+1 W( ring \050called tr\051 device had three fourteen element arrays added to it:)SH
+7200 13304 MT
+(an array of bytes for the adapter's counters, an array of)
+36 W( longs for the total counters, and a array of longs for the peg)37 W
+7200 14681 MT
+(counters. A)
+458 W( semaphore,)104 W
+/Courier SF
+17558 XM
+(readerrlog_wait)SH
+/Times-Roman SF
+(, was also added, to support notifying)
+104 W( the rdiag functions of)103 W
+/Times-Bold SF
+51778 XM
+(Read)SH
+7200 16058 MT
+(Error Log)22 W
+/Times-Roman SF
+11910 XM
+(completion. The)
+294 W( device dependent data fields are replicated for each active)
+22 W( card in a running router \050i.e.)23 W
+7200 17435 MT
+(the counters are not shared by the token ring cards\051.)SH
+8200 19914 MT
+(The device driver, in the file)132 W
+/Courier SF
+20628 XM
+(dev/tr.c)SH
+/Times-Roman SF
+(, was slightly modified)
+132 W( .  This device driver operates at two priority)131 W
+7200 21291 MT
+(levels: interrupt level \050no interrupts can be received\051, and user level \050interrupts may be)
+422 W( received\051.  A)423 W
+/Courier SF
+7200 22668 MT
+(read_error_log)SH
+/Times-Roman SF
+15919 XM
+(function, to be)
+69 W( invoked in the interrupt priority level, was created.  This sets up a read of the)68 W
+7200 24045 MT
+(counters by issuing a)1 W
+/Times-Bold SF
+15870 XM
+(Read Error Log)1 W
+/Times-Roman SF
+23011 XM
+(command to the token ring)
+1 W( card.  The command requires a buffer to place the)2 W
+7200 25422 MT
+(counters into.  This buffer is contained)
+194 W( in the device dependent data for the relevant card.  When the read is)193 W
+7200 26799 MT
+(completed, an)681 W
+/Times-Bold SF
+14422 XM
+(Command Completion)681 W
+/Times-Roman SF
+25784 XM
+(interrupt occurs.)
+681 W( The)
+1614 W( interrupt is serviced by a routine,)682 W
+/Courier SF
+7200 28176 MT
+(complete_read_error_log)SH
+/Times-Roman SF
+21605 XM
+(which adds the eight bit counter values to the long counter values, and)355 W
+7200 29553 MT
+(increments the peg counts as needed.  The semaphore)23 W
+/Courier SF
+29124 XM
+(readerrlog_wait)SH
+/Times-Roman SF
+38397 XM
+(is then set, to notify routine)
+23 W( in the user)24 W
+7200 30930 MT
+(priority level.)SH
+8200 33409 MT
+(To handle user requests for the error counters, the)45 W
+/Courier SF
+28766 XM
+(read_error_log)SH
+/Times-Roman SF
+37460 XM
+(function is called at the interrupt priority)44 W
+7200 34786 MT
+(level. Then)
+308 W( the rdiag routine goes to user level priority so that the)29 W
+/Times-Bold SF
+34297 XM
+(Command Completion Interrupt)30 W
+/Times-Roman SF
+48692 XM
+(can be taken.)30 W
+7200 36163 MT
+(A spin loop is used to wait for the)86 W
+/Courier SF
+21779 XM
+(read_error_log)SH
+/Times-Roman SF
+30515 XM
+(to be completed,)
+86 W( by looking at the)85 W
+/Courier SF
+45000 XM
+(readerrlog_wait)SH
+/Times-Roman SF
+7200 37540 MT
+(semaphore. Once)
+414 W( the semaphore is set, the)82 W
+/Times-Italic SF
+25352 XM
+(rdiag)SH
+/Times-Roman SF
+27851 XM
+(result packet with the updated counter values is sent to the)
+82 W( user)83 W
+7200 38917 MT
+(program. If)
+264 W( the semaphore is not set in a reasonable amount of time, the diagnosis fails.  This is reported back to the)6 W
+7200 40294 MT
+(user of the)SH
+/Times-Italic SF
+11671 XM
+(rdiag)SH
+/Times-Roman SF
+14088 XM
+(program.)SH
+8200 42773 MT
+(Because the)14 W
+/Times-Bold SF
+13282 XM
+(Read Error Log)14 W
+/Times-Roman SF
+20462 XM
+(command is only valid for an open device, a user request for the error)
+14 W( counters will)15 W
+7200 44150 MT
+(fail when the tr device is closed.  This)
+133 W( can happen at any time during the lifetime of a router invocation, either)132 W
+7200 45527 MT
+(because the tr device has not opened yet \050it takes)
+11 W( about fifteen seconds for the device to open when the router is first)12 W
+7200 46904 MT
+(booted\051, or because)
+22 W( the tr device may close \050temporarily or permanently\051 due to serious errors on the ring.  The user)21 W
+7200 48281 MT
+(interface program displays the message:)SH
+/Courier SF
+23752 XM
+("device is not ready for diagnosis- retry later")SH
+/Times-Roman SF
+(.)SH
+7200 75600 MT
+(Token Ring Diagnosis)SH
+26795 XM
+(11 December 1987)SH
+47196 XM
+(David Waitzman)SH
+ES
+%%Page: 5 6 
+BS
+0 SI
+10 /Times-Roman AF
+30350 4286 MT
+(5)SH
+13 /Times-Bold AF
+7200 8071 MT
+(4. Testing Methods and Results)SH
+10 /Times-Roman AF
+8200 9448 MT
+(This chapter describes the methods and results of testing the)
+55 W( diagnosis functions in the router.  The test methods)56 W
+7200 10825 MT
+(involve creating faults on the ring and noting the reaction of the router.  This testing is being used soley to)
+4 W( determine)3 W
+7200 12202 MT
+(if the)116 W
+/Times-Italic SF
+9765 XM
+(rdiag)SH
+/Times-Roman SF
+12298 XM
+(code is capable of reading the error counters correctly.  The chip set microcode actually)
+116 W( determines,)117 W
+7200 13579 MT
+(categorizes, and counts errors.  Therefore, my testing must simply try to obtain and report some number of errors.)SH
+8200 16058 MT
+(A few procedures for creating faults were used:)SH
+9200 17397 MT
+(1.)SH
+/Times-Italic SF
+10200 XM
+(Disconnecting and reconnecting the ring connector cable for an adapter.)SH
+/Times-Roman SF
+9200 19155 MT
+(2.)SH
+/Times-Italic SF
+10200 XM
+(Shorting the ring-)128 W
+/Times-Roman SF
+18001 XM
+(There are essentially two wires in the)
+128 W( ring that are available via a cut-up wiring)127 W
+10200 20260 MT
+(connector. Simply)
+250 W( shorting the ring wiring together causes errors.)SH
+9200 22018 MT
+(3.)SH
+/Times-Italic SF
+10200 XM
+(Applying an external signal to the ring-)16 W
+/Times-Roman SF
+26395 XM
+(If a)
+16 W( function generator is used to apply a signal to the ring, the)17 W
+10200 23123 MT
+(ring notices errors for certain types of inserted)
+91 W( signals.  Attach the function generator ground to one)90 W
+10200 24228 MT
+(wire, and the function generator hot \050signal\051 lead to the second wire.)SH
+8200 26707 MT
+(The first method creates)
+26 W( relatively few errors.  Typically, a line error and a token error are caused when the cable)27 W
+7200 28084 MT
+(is disconnected.  When the cable is reconnected,)
+101 W( one or two frame copied errors are caused.  Note that the token)100 W
+7200 29461 MT
+(error is)
+10 W( only counted by Active Monitors on the ring.  If the cable is left off for about six seconds the adapter signals)11 W
+7200 30838 MT
+(a)SH
+/Times-Bold SF
+8019 XM
+(lobe fault)125 W
+/Times-Roman SF
+(, but this does not cause the error)
+125 W( counters to change any differently than for a shorter disconnected)124 W
+7200 32215 MT
+(period. This)
+250 W( test method shows the kind of errors that could be expected on a ring due to computer installation.)SH
+8200 34694 MT
+(The second method usually causes line, burst, lost frame, and frame copied errors.)
+17 W( Because)
+285 W( of the variable nature)18 W
+7200 36071 MT
+(of this method, the number of errors that occur per affected counter is relatively random, but usually)
+52 W( one to ten.  If)51 W
+7200 37448 MT
+(the short is permanent, the ring shuts down.  This models a wire fault in the ring cabling.)SH
+8200 39927 MT
+(The third method usually causes line, burst, lost frame, and token)
+59 W( errors.  Using a 10% duty cycle, 2V)60 W
+51390 XM
+(square)SH
+8 SS 
+50014 40272 MT
+(p-p)SH
+10 SS 
+7200 41304 MT
+(wave the following errors are noted per two second interval \050approximate counts\051:)SH
+/Symbol SF
+8990 42757 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(At 10hz: 4 burst errors, 25 token errors)SH
+/Symbol SF
+8990 44515 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(At 1khz: 50 line errors, 60 burst errors, 1 lost frame error, and 70 token errors)SH
+/Symbol SF
+8990 46273 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(At 10khz: 250 line errors, 300 burst errors, 1 lost frame error, and 80 token errors)SH
+/Symbol SF
+8990 48031 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(At 10khz and a 13% duty cycle or higher: the ring shuts down)
+92 W( until the signal is removed.  At lower)91 W
+9700 49136 MT
+(duty cycles the ring may shut down a few seconds at a time, but it comes back up.)SH
+8200 51615 MT
+(With higher frequencies, the duty cycle must be)
+93 W( low or the ring quickly shuts down.  At very high frequencies)94 W
+7200 52992 MT
+(\0504mhz, the data rate\051, signal voltages greater than ~.3V)97 W
+31397 XM
+(will shut down the ring.)
+97 W( Lower)
+443 W( voltage signals do not)96 W
+8 SS 
+29984 53337 MT
+(p-p)SH
+10 SS 
+7200 54369 MT
+(effect the ring.)SH
+8200 56848 MT
+(This third method of testing simulates noise on)
+31 W( the ring.  I am not clear what kind of signals best represent noise,)32 W
+7200 58225 MT
+(so I vary many different parameters.)
+124 W( If)
+496 W( a better representation were available of the real world failure modes, a)123 W
+7200 59602 MT
+(token ring experiences, more useful tests could be performed.)SH
+8200 62081 MT
+(Earlier in)
+43 W( this paper, a desire was expressed to count the number of errors lost between a peg and when the error)44 W
+7200 63458 MT
+(counters are read.  Due to the random nature of the errors, this desire proved impossible to fufill.)SH
+7200 75600 MT
+(Token Ring Diagnosis)SH
+26795 XM
+(11 December 1987)SH
+47196 XM
+(David Waitzman)SH
+ES
+%%Page: 6 7 
+BS
+0 SI
+10 /Times-Roman AF
+30350 4286 MT
+(6)SH
+13 /Times-Bold AF
+7200 8098 MT
+(5. Modifications to)SH
+/Times-BoldItalic SF
+17888 XM
+(rdiag)SH
+10 /Times-Roman AF
+8200 9475 MT
+(This chapter describes)
+19 W( the modifications to the)18 W
+/Times-Italic SF
+27242 XM
+(rdiag)SH
+/Times-Roman SF
+29677 XM
+(program made during this project.  The follow features were)18 W
+7200 10852 MT
+(added:)SH
+/Symbol SF
+8990 12305 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(Ability to specify the)SH
+/Times-Bold SF
+18422 XM
+(errs)SH
+/Times-Roman SF
+20393 XM
+(\050read error counters\051 diagnosis of the)SH
+/Times-Bold SF
+35444 XM
+(tr)SH
+/Times-Roman SF
+36471 XM
+(\050token ring device\051.)SH
+/Symbol SF
+8990 14063 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(A machine)
+79 W( readable output format which prints numeric data separated by spaces.  All non-fatal error)80 W
+9700 15168 MT
+(messages are sent to the standard output preceeded by a question mark.)SH
+/Symbol SF
+8990 16926 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(A new way of specify options to)SH
+/Times-Italic SF
+22948 XM
+(rdiag)SH
+/Times-Roman SF
+25365 XM
+(has been created, using the C library function)SH
+/Times-Bold SF
+43778 XM
+(getopt)SH
+/Times-Roman SF
+(\050\051.)SH
+/Symbol SF
+8990 18684 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(Ability to specify a repeat count \050or infinite repetition\051 and a delay between repetitions for diagnoses.)SH
+/Symbol SF
+8990 20442 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(An X interface to)152 W
+/Times-Italic SF
+17527 XM
+(rdiag)SH
+/Times-Roman SF
+20095 XM
+(that allows easy, but simple, router diagnosis.  This is in a program called)151 W
+/Times-Italic SF
+9700 21547 MT
+(xfrdiag)SH
+/Times-Roman SF
+(.)SH
+8200 24026 MT
+(As a transistional phase, the new version of)54 W
+/Times-Italic SF
+26268 XM
+(rdiag)SH
+/Times-Roman SF
+(, that has the new option specification format, is called)54 W
+/Times-Italic SF
+51083 XM
+(nrdiag)SH
+/Times-Roman SF
+(.)SH
+7200 25403 MT
+(The)SH
+/Times-Italic SF
+9005 XM
+(rdiag)SH
+/Times-Roman SF
+11422 XM
+(program still exists, but does not support the repeat count options.)SH
+/Times-Italic SF
+38310 XM
+(rdiag)SH
+/Times-Roman SF
+40727 XM
+(will be deleted eventually.)SH
+12 /Times-Bold AF
+7200 29087 MT
+(5.1 Description of Output Formats)SH
+10 /Times-Italic AF
+8200 30464 MT
+(Nrdiag)SH
+/Times-Roman SF
+11296 XM
+(now provides three different output formats.)
+12 W( This)
+273 W( section describe the output formats available with the)11 W
+/Times-Italic SF
+53333 XM
+(tr)SH
+/Times-Roman SF
+7200 31841 MT
+(device)SH
+/Times-Italic SF
+10060 XM
+(errs)SH
+/Times-Roman SF
+11921 XM
+(diagnosis.)SH
+8200 34320 MT
+(The)SH
+/Times-Bold SF
+10039 XM
+(verbose)SH
+/Times-Roman SF
+13600 XM
+(output format from)34 W
+/Times-Italic SF
+21618 XM
+(nrdiag)SH
+/Times-Roman SF
+24569 XM
+(provides a list of the name of the counter, the)
+34 W( non-reserved error counter)35 W
+7200 35697 MT
+(and the peg counter, with each peg counter adjacent to the error counter that it applies too, i.e.)SH
+/Times-Italic SF
+11200 37215 MT
+(counter name)
+SH( error)
+750 W( counter)
+SH( peg)
+500 W( counter)SH
+11200 38320 MT
+(counter name)
+SH( error)
+750 W( counter)
+SH( peg)
+500 W( counter)SH
+11200 39425 MT
+(counter name)
+SH( error)
+750 W( counter)
+SH( peg)
+500 W( counter)SH
+11200 40530 MT
+(.)SH
+11200 41635 MT
+(.)SH
+11200 42740 MT
+(.)SH
+/Courier SF
+14000 43845 MT
+(line errors:)
+SH( 0,)
+1800 W( pegs:)
+SH( 0)3000 W
+14000 44950 MT
+(burst errors:)
+SH( 0,)
+1200 W( pegs:)
+SH( 0)3000 W
+14000 46055 MT
+(ari/fci errors: 0, pegs:)
+SH( 0)3000 W
+14000 47160 MT
+(.)SH
+14000 48265 MT
+(.)SH
+14000 49370 MT
+(.)SH
+/Times-Roman SF
+8200 51849 MT
+(The)SH
+/Times-Bold SF
+10016 XM
+(terse)SH
+/Times-Roman SF
+12331 XM
+(output format provides a single line of)
+11 W( output, with the card number, a colon, all fourteen error counters)10 W
+7200 53226 MT
+(\050including the reserved counters\051 and then the fourteen peg counters, i.e.)SH
+/Times-Italic SF
+9200 54744 MT
+(card number:)
+SH( 14)
+750 W( error counters)
+SH( 14)
+750 W( peg counters)SH
+/Courier SF
+9200 55849 MT
+(1: 494 0 4 0 0 0 401 1 0 0 15113 0 0 0 0 0 0 0 0 0 0 0 0 0 37 0 0 0)SH
+/Times-Roman SF
+8200 58328 MT
+(The)SH
+/Times-Bold SF
+10106 XM
+(machine readable)101 W
+/Times-Roman SF
+18141 XM
+(output format provides a single line of output, with)
+101 W( the card number, all fourteen error)102 W
+7200 59705 MT
+(counters \050including the reserved counters\051 and then the fourteen peg counters, i.e.)SH
+/Times-Italic SF
+9200 61223 MT
+(card number)
+SH( 14)
+750 W( error counters)
+SH( 14)
+750 W( peg counters)SH
+/Courier SF
+9200 62328 MT
+(1 494 0 4 0 0 0 401 1 0 0 15113 0 0 0 0 0 0 0 0 0 0 0 0 0 37 0 0 0)SH
+/Times-Roman SF
+8200 64807 MT
+(Error messages are primarily sent to the standard error output for the)170 W
+/Times-Bold SF
+37956 XM
+(verbose)SH
+/Times-Roman SF
+41653 XM
+(and)SH
+/Times-Bold SF
+43517 XM
+(terse)SH
+/Times-Roman SF
+45991 XM
+(formats, and to the)170 W
+7200 66184 MT
+(standard output for the)SH
+/Times-Bold SF
+16532 XM
+(machine readable)SH
+/Times-Roman SF
+24365 XM
+(formats.)SH
+7200 75600 MT
+(Token Ring Diagnosis)SH
+26795 XM
+(11 December 1987)SH
+47196 XM
+(David Waitzman)SH
+ES
+%%Page: 7 8 
+BS
+0 SI
+10 /Times-Roman AF
+30350 4286 MT
+(7)SH
+13 /Times-Bold AF
+7200 8071 MT
+(6. Conclusion)SH
+10 /Times-Roman AF
+8200 9448 MT
+(This project has been successful, in terms of adding a simple token ring diagnosis capability to the router.)
+38 W( There)327 W
+7200 10825 MT
+(are additional diagnosis capabilities that could be added,)
+33 W( but were not provided by this project.  Better testing could)32 W
+7200 12202 MT
+(make the output more meaningful.)SH
+8200 14681 MT
+(The extensions to)SH
+/Times-Italic SF
+15505 XM
+(rdiag)SH
+/Times-Roman SF
+17922 XM
+(make it more useful for some applications.)SH
+7200 75600 MT
+(Token Ring Diagnosis)SH
+26795 XM
+(11 December 1987)SH
+47196 XM
+(David Waitzman)SH
+ES
+%%Page: 8 9 
+BS
+0 SI
+10 /Times-Roman AF
+30350 4286 MT
+(8)SH
+13 /Times-Bold AF
+7200 8071 MT
+(I. Sample diagnosis output)SH
+10 /Times-Roman AF
+8200 9448 MT
+(See)SH
+/Times-Bold SF
+9894 XM
+(table 1)SH
+/Times-Roman SF
+13005 XM
+(and)SH
+/Times-Bold SF
+14699 XM
+(section 5.1)SH
+/Times-Roman SF
+19393 XM
+(for an explanation of the output formats.)SH
+8 SS 
+42493 11582 MT
+(4)SH
+10 SS 
+8200 11927 MT
+(From the command)41 W
+/Courier SF
+16406 XM
+(nrdiag -r128.2.251.238 -D tr -d errs -i -I2)41 W
+/Times-Roman SF
+43393 XM
+(selected output as the ring)41 W
+7200 13304 MT
+(was repeatedly shorted:)SH
+/Courier-Bold SF
+7200 15109 MT
+(1: 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 16240 MT
+(2: 3 0 2 0 0 0 2 0 0 0 52 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 17371 MT
+(1: 0 0 0 0 0 0 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 18502 MT
+(2: 8 0 7 0 0 0 2 0 0 0 104 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 19633 MT
+(1: 0 0 0 0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 20764 MT
+(2: 17 0 9 0 0 0 2 0 0 0 130 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 21895 MT
+(1: 0 0 0 0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 23026 MT
+(2: 21 0 9 0 0 0 3 0 0 0 156 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 24157 MT
+(1: 0 0 0 0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 25288 MT
+(2: 23 0 10 0 0 0 3 0 0 0 193 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 26419 MT
+(1: 1 0 0 0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 27550 MT
+(2: 24 0 11 0 0 0 3 0 0 0 222 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 28681 MT
+(1: 1 0 0 0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 29812 MT
+(2: 24 0 11 0 0 0 3 0 0 0 227 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 30943 MT
+(1: 2 0 0 0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 32074 MT
+(2: 30 0 11 0 0 0 3 0 0 0 240 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 33205 MT
+(1: 3 0 0 0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 34336 MT
+(2: 75 0 14 0 0 0 3 0 0 0 275 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 35467 MT
+(1: 3 0 0 0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 36598 MT
+(2: 110 0 15 0 0 0 3 0 0 0 299 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 37729 MT
+(1: 4 0 0 0 0 0 14 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 38860 MT
+(2: 138 0 19 0 0 0 3 0 0 0 332 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)SH
+7200 39991 MT
+(1: rdiag: diagnosis error- device is not ready for diagnosis- retry later)SH
+7200 41122 MT
+(.)SH
+7200 42253 MT
+(.)SH
+/Times-Bold SF
+12000 XM
+(the device shut down for a while)SH
+/Courier-Bold SF
+7200 43384 MT
+(.)SH
+10800 50 7200 70352 UL
+6 /Times-Roman AF
+8000 71691 MT
+(4)SH
+8 SS 
+8300 72000 MT
+(Router: 128.2.251.238, Device type: tr, Diagnosis: errs, Infinite repetition, Delay between repetitions: 2 seconds, Terse output)SH
+10 SS 
+7200 75600 MT
+(Token Ring Diagnosis)SH
+26795 XM
+(11 December 1987)SH
+47196 XM
+(David Waitzman)SH
+ES
+%%Page: 9 10 
+BS
+0 SI
+10 /Times-Roman AF
+30350 4286 MT
+(9)SH
+8 SS 
+51504 7749 MT
+(5)SH
+10 SS 
+7200 8094 MT
+(Selected output from the command)SH
+/Courier SF
+21504 XM
+(nrdiag -r128.2.251.238 -D tr -d errs -v -R 2 -I 20)SH
+/Times-Roman SF
+51904 XM
+(:)SH
+/Times-Bold SF
+7200 9895 MT
+(initially:)SH
+/Courier-Bold SF
+7200 11026 MT
+(128.2.251.238:: Card: 1, Diagnosis: errs, Device type: IBM Token Ring)SH
+19800 12157 MT
+(line errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+19200 13288 MT
+(burst errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+18000 14419 MT
+(ari/fci errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+16200 15550 MT
+(lost frame errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+11400 16681 MT
+(receive congestion errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+15000 17812 MT
+(frame copied errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+15600 18943 MT
+(token error errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+18000 20074 MT
+(dma bus errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+16200 21205 MT
+(dma parity errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+7200 22336 MT
+(128.2.251.238:: Card: 2, Diagnosis: errs, Device type: IBM Token Ring)SH
+19800 23467 MT
+(line errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+19200 24598 MT
+(burst errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+18000 25729 MT
+(ari/fci errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+16200 26860 MT
+(lost frame errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+11400 27991 MT
+(receive congestion errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+15000 29122 MT
+(frame copied errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+15600 30253 MT
+(token error errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+18000 31384 MT
+(dma bus errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+16200 32515 MT
+(dma parity errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+/Times-Bold SF
+7200 33646 MT
+(after many shorts:)SH
+/Courier-Bold SF
+7200 34777 MT
+(128.2.251.238:: Card: 1, Diagnosis: errs, Device type: IBM Token Ring)SH
+19800 35908 MT
+(line errors:)
+SH( 6,)
+3000 W( pegs:)
+SH( 0)3000 W
+19200 37039 MT
+(burst errors:)
+SH( 1,)
+3000 W( pegs:)
+SH( 0)3000 W
+18000 38170 MT
+(ari/fci errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+16200 39301 MT
+(lost frame errors:)
+SH( 22,)
+2400 W( pegs:)
+SH( 0)3000 W
+11400 40432 MT
+(receive congestion errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+15000 41563 MT
+(frame copied errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+15600 42694 MT
+(token error errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+18000 43825 MT
+(dma bus errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+16200 44956 MT
+(dma parity errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+7200 46087 MT
+(128.2.251.238:: Card: 2, Diagnosis: errs, Device type: IBM Token Ring)SH
+19800 47218 MT
+(line errors:)
+SH( 83,)
+2400 W( pegs:)
+SH( 0)3000 W
+19200 48349 MT
+(burst errors:)
+SH( 35,)
+2400 W( pegs:)
+SH( 0)3000 W
+18000 49480 MT
+(ari/fci errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+16200 50611 MT
+(lost frame errors:)
+SH( 5,)
+3000 W( pegs:)
+SH( 0)3000 W
+11400 51742 MT
+(receive congestion errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+15000 52873 MT
+(frame copied errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+15600 54004 MT
+(token error errors:)
+SH( 284,)
+1800 W( pegs:)
+SH( 1)3000 W
+18000 55135 MT
+(dma bus errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+16200 56266 MT
+(dma parity errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+10800 50 7200 70352 UL
+6 /Times-Roman AF
+8000 71691 MT
+(5)SH
+8 SS 
+8300 72000 MT
+(Router: 128.2.251.238, Device type: tr, Diagnosis: errs, Repetition count: 2, Delay between repetitions: 20 seconds, Verbose Output)SH
+10 SS 
+7200 75600 MT
+(Token Ring Diagnosis)SH
+26795 XM
+(11 December 1987)SH
+47196 XM
+(David Waitzman)SH
+ES
+%%Page: 10 11 
+BS
+0 SI
+10 /Times-Roman AF
+30100 4286 MT
+(10)SH
+8200 7886 MT
+(After all of the final testing done for this paper, output from the command)SH
+8 SS 
+34800 9420 MT
+(6)SH
+10 /Courier AF
+7200 9765 MT
+(../vax/nrdiag -r128.2.251.238 -D tr -d errs -m)SH
+/Times-Roman SF
+35200 XM
+(:)SH
+/Courier-Bold SF
+7200 11570 MT
+(1 494 0 4 0 0 0 401 1 0 0 15113 0 0 0 0 0 0 0 0 0 0 0 0 0 37 0 0 0)SH
+7200 12701 MT
+(2 13259 0 10629 0 0 0 144 4 0 0 1636 0 0 0 13 0 29 0 0 0 0 0 0 0 3 0 0 0)SH
+/Times-Roman SF
+8200 15180 MT
+(With terse output \050)SH
+/Courier SF
+(-t)SH
+/Times-Roman SF
+(\051, the default:)SH
+/Courier-Bold SF
+7200 16985 MT
+(1 494 0 4 0 0 0 401 1 0 0 15113 0 0 0 0 0 0 0 0 0 0 0 0 0 37 0 0 0)SH
+7200 18116 MT
+(2 13259 0 10629 0 0 0 144 4 0 0 1636 0 0 0 13 0 29 0 0 0 0 0 0 0 3 0 0 0)SH
+/Times-Roman SF
+8200 20595 MT
+(With verbose output \050)SH
+/Courier SF
+(-v)SH
+/Times-Roman SF
+(\051:)SH
+/Courier-Bold SF
+7200 22400 MT
+(128.2.251.238:: Card: 1, Diagnosis: errs, Device type: IBM Token Ring)SH
+19800 23531 MT
+(line errors:)
+SH( 494,)
+1800 W( pegs:)
+SH( 0)3000 W
+19200 24662 MT
+(burst errors:)
+SH( 4,)
+3000 W( pegs:)
+SH( 0)3000 W
+18000 25793 MT
+(ari/fci errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+16200 26924 MT
+(lost frame errors:)
+SH( 401,)
+1800 W( pegs:)
+SH( 0)3000 W
+11400 28055 MT
+(receive congestion errors:)
+SH( 1,)
+3000 W( pegs:)
+SH( 0)3000 W
+15000 29186 MT
+(frame copied errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+15600 30317 MT
+(token error errors:  15113, pegs:)
+SH( 37)2400 W
+18000 31448 MT
+(dma bus errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+16200 32579 MT
+(dma parity errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+7200 33710 MT
+(128.2.251.238:: Card: 2, Diagnosis: errs, Device type: IBM Token Ring)SH
+19800 34841 MT
+(line errors:  13259, pegs:)
+SH( 13)2400 W
+19200 35972 MT
+(burst errors:  10629, pegs:)
+SH( 29)2400 W
+18000 37103 MT
+(ari/fci errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+16200 38234 MT
+(lost frame errors:)
+SH( 144,)
+1800 W( pegs:)
+SH( 0)3000 W
+11400 39365 MT
+(receive congestion errors:)
+SH( 4,)
+3000 W( pegs:)
+SH( 0)3000 W
+15000 40496 MT
+(frame copied errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+15600 41627 MT
+(token error errors:)
+SH( 1636,)
+1200 W( pegs:)
+SH( 3)3000 W
+18000 42758 MT
+(dma bus errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+16200 43889 MT
+(dma parity errors:)
+SH( 0,)
+3000 W( pegs:)
+SH( 0)3000 W
+10800 50 7200 70352 UL
+6 /Times-Roman AF
+8000 71691 MT
+(6)SH
+8 SS 
+8300 72000 MT
+(Router: 128.2.251.238, Device type: tr, Diagnosis: errs, No repetition, Machine readable diagnosis)SH
+10 SS 
+7200 75600 MT
+(Token Ring Diagnosis)SH
+26795 XM
+(11 December 1987)SH
+47196 XM
+(David Waitzman)SH
+ES
+%%Page: 11 12 
+BS
+0 SI
+10 /Times-Roman AF
+30100 4286 MT
+(11)SH
+13 /Times-Bold AF
+7200 8098 MT
+(II. The)SH
+/Times-BoldItalic SF
+11354 XM
+(rdiag)SH
+/Times-Bold SF
+14496 XM
+(man page)SH
+10 /Times-Roman AF
+7200 75600 MT
+(Token Ring Diagnosis)SH
+26795 XM
+(11 December 1987)SH
+47196 XM
+(David Waitzman)SH
+ES
+%%Page: 12 13 
+BS
+0 SI
+10 /Times-Roman AF
+30100 4286 MT
+(12)SH
+13 /Times-Bold AF
+7200 8071 MT
+(III. Selected Portions of the TMS380 Adapter Chipset User's Guide)SH
+4767 50 22726 8271 UL
+4622 50 27818 8271 UL
+4262 50 32765 8271 UL
+3538 50 37352 8271 UL
+3395 50 41215 8271 UL
+10 /Times-Roman AF
+8200 9448 MT
+(This appendix contains selected sections of the TMS380 Adapter Chipset User's Guide that will be useful to)151 W
+3556 50 28282 9648 UL
+3221 50 32239 9648 UL
+3056 50 35861 9648 UL
+2610 50 39318 9648 UL
+2444 50 42329 9648 UL
+7200 10825 MT
+(understand this report.)SH
+7200 75600 MT
+(Token Ring Diagnosis)SH
+26795 XM
+(11 December 1987)SH
+47196 XM
+(David Waitzman)SH
+ES
+%%Page: 13 14 
+BS
+0 SI
+10 /Times-Roman AF
+30100 4286 MT
+(13)SH
+13 /Times-Bold AF
+7200 8071 MT
+(IV. Selected Router Code)SH
+10 /Times-Roman AF
+8200 9448 MT
+(This appendix contains:)SH
+/Symbol SF
+8990 10901 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(The token ring device driver:)SH
+/Times-Italic SF
+21614 XM
+(tr.c)SH
+/Symbol SF
+8990 12659 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(The token ring main header file:)SH
+/Times-Italic SF
+22864 XM
+(tr.h)SH
+/Symbol SF
+8990 14417 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(The token ring internal register header file:)SH
+/Times-Italic SF
+27168 XM
+(trreg.h)SH
+/Times-Roman SF
+7200 75600 MT
+(Token Ring Diagnosis)SH
+26795 XM
+(11 December 1987)SH
+47196 XM
+(David Waitzman)SH
+ES
+%%Page: 14 15 
+BS
+0 SI
+10 /Times-Roman AF
+30100 4286 MT
+(14)SH
+13 /Times-Bold AF
+7200 8098 MT
+(V.)SH
+/Times-BoldItalic SF
+8789 XM
+(Nrdiag)SH
+/Times-Bold SF
+12870 XM
+(Code)SH
+10 /Times-Roman AF
+8200 9475 MT
+(This appendix contains:)SH
+/Symbol SF
+8990 10928 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(The main code:)SH
+/Times-Italic SF
+16171 XM
+(nrdiag.c)SH
+/Symbol SF
+8990 12686 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(The utility code:)SH
+/Times-Italic SF
+16561 XM
+(nrd_utils.c)SH
+/Symbol SF
+8990 14444 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(The Token Ring diagnosis output code:)SH
+/Times-Italic SF
+25755 XM
+(Dtr.c)SH
+/Symbol SF
+8990 16202 MT
+(\267)SH
+/Times-Roman SF
+9700 XM
+(A header file:)SH
+/Times-Italic SF
+15448 XM
+(rdiag.h)SH
+/Times-Roman SF
+7200 75600 MT
+(Token Ring Diagnosis)SH
+26795 XM
+(11 December 1987)SH
+47196 XM
+(David Waitzman)SH
+ES
+%%Page: i 16 
+BS
+0 SI
+10 /Times-Roman AF
+30461 4286 MT
+(i)SH
+13 /Times-Bold AF
+25652 8071 MT
+(Table of Contents)SH
+12 SS 
+7200 9327 MT
+(1. Introduction)SH
+53400 XM
+(1)SH
+7200 10583 MT
+(2. Diagnosis Functions)SH
+53400 XM
+(2)SH
+7200 11839 MT
+(3. Implementation)SH
+53400 XM
+(4)SH
+7200 13095 MT
+(4. Testing Methods and Results)SH
+53400 XM
+(5)SH
+7200 14351 MT
+(5. Modifications to)SH
+/Times-BoldItalic SF
+17069 XM
+(rdiag)SH
+/Times-Bold SF
+53400 XM
+(6)SH
+11 SS 
+8850 15519 MT
+(5.1 Description of Output Formats)SH
+53450 XM
+(6)SH
+12 SS 
+7200 16775 MT
+(6. Conclusion)SH
+53400 XM
+(7)SH
+7200 18031 MT
+(I. Sample diagnosis output)SH
+53400 XM
+(8)SH
+7200 19287 MT
+(II. The)SH
+/Times-BoldItalic SF
+11034 XM
+(rdiag)SH
+/Times-Bold SF
+13935 XM
+(man page)SH
+52800 XM
+(11)SH
+7200 20543 MT
+(III. Selected Portions of the TMS380 Adapter Chipset User's Guide)SH
+52800 XM
+(12)SH
+4400 50 21535 20743 UL
+4266 50 26235 20743 UL
+3934 50 30801 20743 UL
+3266 50 35035 20743 UL
+3135 50 38601 20743 UL
+7200 21799 MT
+(IV. Selected Router Code)SH
+52800 XM
+(13)SH
+7200 23055 MT
+(V.)SH
+/Times-BoldItalic SF
+8666 XM
+(Nrdiag)SH
+/Times-Bold SF
+12433 XM
+(Code)SH
+52800 XM
+(14)SH
+10 /Times-Roman AF
+7200 75600 MT
+(Token Ring Diagnosis)SH
+26795 XM
+(11 December 1987)SH
+47196 XM
+(David Waitzman)SH
+ES
+%%Trailer
+%%Pages: 16 
+%%DocumentFonts: Times-Roman Times-Bold Times-Italic Symbol Courier Times-BoldItalic Courier-Bold

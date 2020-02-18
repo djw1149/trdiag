@@ -1,0 +1,177 @@
+.TH nrdiag 1 12/3/87
+.CM 1
+.SH "NAME"
+.I nrdiag
+\- A router diagnosis program
+.SH "SYNOPSIS"
+nrdiag <options>
+.SH "OPTIONS"
+.br
+.PP
+.I -r <router>
+.B \-\>
+where router is of the form 128.2.251.231 or
+router7.ece.cmu.edu.
+.br
+.PP
+.I -c <card number>
+.B \-\>
+where card is typically 1-4
+.br
+.PP
+.I -D <device name>
+.B \-\>
+like 
+.I il
+or
+.I tr.
+See below for a complete list.
+.br
+.PP
+.I -d <diagnosis type>
+.B \-\>
+which is dependent on the kind of card/device.  For example,
+.I stats
+is valid for the Interlan device.  Type can also be specified as a number, 
+at some loss of error checking ability.  See below for a complete list.
+.br
+.PP
+.I -v
+.B \-\>
+provide verbose output
+.br
+.PP
+.I -t
+.B \-\>
+provide terse output (default)
+.br
+.PP
+.I -m
+.B \-\>
+provide machine readable output (very terse)
+.br
+.PP
+.I -p
+.B \-\>
+force asking for a password
+.br
+.PP
+.I -R <repeat_count>
+.B \-\>
+repeat the diagnosis repeat_count times
+.br
+.PP
+.I -i
+.B \-\>
+do an infinite number of diagnoses
+.br
+.PP
+.I -I <delay_interval>
+.B \-\>
+delay for delay_interval seconds between each repeated diagnosis.
+
+.SH "DESCRIPTION"
+nrdiag is used to diagnosis (really monitor) the status of network devices
+in a router.  As the diagnoses can have temporary side effects on the
+device, care should be taken.  The more dangerous diagnoses require use of
+the router password.  
+
+Various combinitions of the options must be given for the program to
+function.  The program must get a router (-r), a device name and a card or
+diagnosis type.  If no explicit card number is specified, then a diagnosis
+name must be given, and the program will diagnosis all cards in the router
+of the appropriate device type.  Nrdiag can determine the device type from
+the card number and a numeric diagnosis type, or from a non-numeric
+diagnosis type.  If nrdiag is invoked with just the -r and -d switch then
+the diagnosis type must be non-numeric.
+
+Certain diagnoses require a password.  If the device type is not given then
+the program won't be able to tell if the diagnosis needs a password so you
+should specify the -p option.
+
+Non-fatal error messages go to standard out.  Fatal error messages go to
+standard err.  The machine readable output format has the 
+property that normal output is numerics separated by white space.  Each output
+line in case of an non-fatal error is started with a 
+.IR '?'.
+
+Currently implemented diagnostics are (listed as device names then diagnosis 
+names and numbers):
+.RS
+.TP
+.B il
+(Interlan 10MB ethernet)
+.RS
+.TP 
+.I dump, DUMP (\#1)
+dump internal chip information
+.TP 
+.I stats, regs, STATS (\#2)
+display error counters
+.TP 
+.I tdr, TDR (\#3)
+do time domain reflectometry
+.TP 
+.I diag, DIAG (\#4)
+so a self test diagnosis
+.RE
+.TP 
+.B tr
+(IBM Token Ring)
+.RS
+.TP 
+.I errs, ERRS (\#1)
+do a token ring error log read.  The non-verbose outputs (terse and machine 
+readable) from this diagnosis output first 14 error counters, and then 14 
+peg counters.
+.RE
+.SH "SEE ALSO"
+rinfo.1
+.SH "EXAMPLES"
+.I
+nrdiag -r128.2.251.1 -c 1 -d2 -v
+.br
+ returns
+.RS
+.nf
+router7.ece.cmu.edu:: Card: 2, Diagnosis: stats, Device type: 10MB Interlan
+Errors: cyclic redundancy check 0, alignment 1, resource 2, overrun 0
+.RE
+meaning:
+.br
+	cyclic redundancy check errors: 0
+.br
+	alignment errors: 1
+.br
+	no resources errors: 2
+.br
+	dma overrun errors: 0
+.br
+.sp
+.I nrdiag -rrouter1.ece.cmu.edu -Dil -d dump -v
+
+This will ask for a password, then do a dump diagnosis on all the interlan 
+10MB boards in the given router.
+.sp
+.I nrdiag -rrouter1.ece.cmu.edu -d dump -v
+
+This will do the same thing.  From the diagnosis name,
+-I dump,
+the device name,
+.I il,
+can be determined by the program.
+
+.SH "DIAGNOSTICS"
+Lots of parameter checks are done.  Error messages should be self
+explanatory.
+
+.SH "HISTORY"
+.TP
+3-Dec-87 djw at Carnegie Mellon
+Added TR stuff and changed all the parameters.
+.TP
+02-Apr-86  djw at Carnegie-Mellon University
+Added rest of diagnosis functions, and implemented password protection.
+.TP
+16-Feb-86  djw at Carnegie-Mellon University
+Created.

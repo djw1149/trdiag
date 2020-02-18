@@ -1,0 +1,68 @@
+head     1.2;
+access   djw;
+symbols  ;
+locks    djw:1.2; strict;
+comment  @ * @;
+
+
+1.2
+date     87.11.29.22.51.29;  author djw;  state Exp;
+branches ;
+next     1.1;
+
+1.1
+date     86.07.23.16.37.01;  author chriss;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@CIL
+@
+
+
+1.2
+log
+@changed output formatting.  added outformat enum.
+@
+text
+@#define MAXPOSSIBLECARD 10	/* something reasonable */
+
+#define MAXDEVTYPES	15
+#define MAXDIAGTYPES	10
+#define DEVNAMELEN	4
+#define DIAGNAMELEN	20
+#define AY 1	/* Authorize request: Yes */
+#define AN 0	/* Authorize request: No */
+
+struct rd_diagtypesT {
+    char diagname[DIAGNAMELEN];
+    int  diagnum;
+    short needsauth;	/* AY = need authorization, AN = don't */
+};
+
+struct rd_devtypesT {
+    char devname[DEVNAMELEN];	 /* short abbrev from autoconf struct */
+    int  devtype;		 /* from h/rcpinfo.h */
+    struct rd_diagtypesT diagtypes[MAXDIAGTYPES];
+};
+
+/*
+ * Types of diagnosis output
+ */
+enum diag_oform_en {
+    of_human_verbose_ev,
+    of_human_terse_ev,
+    of_machine_ev
+};
+
+@
+
+
+1.1
+log
+@CIL
+@
+text
+@d22 9
+@

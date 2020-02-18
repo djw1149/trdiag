@@ -1,0 +1,85 @@
+.TH RINFO 1 10/21/85
+.CM 4
+.SH "NAME"
+rinfo \- Router Information
+.SH "SYNOPSIS"
+rinfo -r<router> [ -T<format> [ <options> ]]
+.SH "DESCRIPTION"
+Rinfo is the user interface to ECE 68k routers.
+It can display internal
+statistics and perform certain remote functions on them.
+Options:
+.i
+.TP
+-r<router>
+Specify which router in the format -r128.2.251.237
+.TP
+-Ts
+Display the router uptime and version. (The default -T switch).
+.ns
+.TP
+-Td
+Display device driver statistics.
+.ns
+.TP
+-Ta
+Displat ARP statistics
+.ns
+.TP
+-Ti
+Display IP statistics
+.ns
+.TP
+-Tm
+Display the ARP cache
+.ns
+.TP
+-Tb
+Reboot the router.  The router will request and validate a passwd.
+.ns
+.TP
+-f<host><path>
+Supply an alternate boot file to -Tb.  In the
+format "[128.2.251.4]/usr/router/boot/ombyte".
+.TP
+-t
+Give total counts since the router was booted.
+.ns
+.TP
+-o
+Give event counts for one 10 second interval.
+.br
+.sp
+If neither -t or -o is specified, then event counts per 10 second
+intervals are given continuously.
+.br
+.TP
+-c<digit>
+Give the event counts for only one card.
+.ns
+.TP
+-d
+Give detailed event counts, including all cards and the sum of the
+cards.
+.br
+.sp
+If neither -c or -d is specified, then display only the sum of the event
+counts for all cards.
+.TP
+-v
+Be verbose.
+.ns
+.TP
+-vv
+Be very verbose (-Ta only).
+.br
+.i0
+.DT
+.PP
+.SH "BUGS"
+Under current development and subject to change.
+.SH HISTORY
+.ns
+.TP
+21-Oct-85  Matt Mathis (ÓC∫tty1) at Carnegie-Mellon University
+Created.
